@@ -9,6 +9,7 @@ class Game {
         this.ctx = this.canvas.getContext("2d");
 
         // config 
+        this.interval;
         this.controlKey;
         this.grid = 20;
         this.snake = [];
@@ -44,14 +45,66 @@ class Game {
     init(){
         document.querySelector("#app").appendChild(this.canvas);
         window.addEventListener("keydown", this.control.bind(this));
-        setInterval(this.animate.bind(this), 40);
+        this.interval = setInterval(this.animate.bind(this), 40);
+    }
+
+    isCrush(x, y){
+        let overSnake = false;
+
+        this.snake.forEach(item => {
+            overSnake = (item.x == x && item.y == y)
+        })
+
+        return overSnake;
     }
 
     update(){
+
+        if(this.head.x < 0){
+            this.head.x = this.canvas.width;
+        }
+        else if(this.head.x > this.canvas.width){
+            this.head.x = 0;
+        }
+        if(this.head.y < 0){
+            this.head.y = this.canvas.height;
+        }
+        else if (this.head.y > this.canvas.height){
+            this.head.y = 0;
+        }
+
+
         if(this.controlKey == "LEFT") this.head.x += -this.grid;
         if(this.controlKey == "RIGHT") this.head.x += this.grid;
         if(this.controlKey == "UP") this.head.y += -this.grid;
         if(this.controlKey == "DOWN") this.head.y += this.grid;
+
+
+        if(this.apple.x == this.head.x && this.apple.y == this.head.y){
+            this.score += 1;
+
+
+            this.apple.x = Math.floor(Math.random() * 19 + 0) * this.grid;
+            this.apple.y = Math.floor(Math.random() * 19 + 0) * this.grid;
+
+            while(this.isCrush(this.apple.x, this.apple.y)){
+                this.apple.x = Math.floor(Math.random() * 19 + 0) * this.grid;
+                this.apple.y = Math.floor(Math.random() * 19 + 0) * this.grid;
+            }
+
+        }
+        else{
+            this.snake.pop();
+        }
+
+
+        let newHead = {
+            x: this.head.x,
+            y: this.head.y
+        };
+
+        this.snake.unshift(newHead)
+
 
     }
 
@@ -62,11 +115,37 @@ class Game {
 
     draw(){
 
+
+    //  draw apple 
+     this.ctx.save();
+     this.ctx.fillStyle = "green";
+     this.ctx.fillText(`Score: ${this.score}`, 10, 20, this.canvas.width);
+     this.ctx.textBaseline ="hanging";
+     this.ctx.textAlign = "center";
+     this.ctx.restore();
+
+     this.ctx.fillStyle = "yellow";
+     this.ctx.fillRect(this.apple.x, this.apple.y, this.grid, this.grid)
+
+
+
       this.snake.forEach((item, index) => {
         this.ctx.fillStyle =  index == 0 ? "red" : "white";
         this.ctx.fillRect(item.x, item.y, this.grid, this.grid);
         this.ctx.strokeStyle = "cyan";
         this.ctx.strokeRect(item.x, item.y, this.grid, this.grid);
+
+        if(index > 0 && item.x == this.head.x && item.y == this.head.y){
+            clearInterval(this.interval);
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.restore();
+            this.ctx.textBaseline = "middle";
+            this.ctx.font = "20px Arial"
+            this.ctx.textAlign = "center";
+            this.ctx.fillStyle = "red";
+            this.ctx.fillText(`Game over`, this.canvas.width / 2, this.canvas.height / 2);
+        }
+
       });
 
 
