@@ -1,8 +1,8 @@
 class Game {
     constructor(){
         this.canvas = document.createElement("canvas");
-        this.canvas.width = 400;
-        this.canvas.height =400;
+        this.canvas.width = document.body.clientWidth;
+        this.canvas.height = document.body.clientHeight;
         this.canvas.style.border = "4px solid thistle";
         this.canvas.style.backgroundColor="white";
         this.canvas.style.borderRadius = "6px";
@@ -45,7 +45,7 @@ class Game {
     init(){
         document.querySelector("#app").appendChild(this.canvas);
         window.addEventListener("keydown", this.control.bind(this));
-        this.interval = setInterval(this.animate.bind(this), 40);
+        this.interval = setInterval(this.animate.bind(this), 60);
     }
 
     isCrush(x, y){
